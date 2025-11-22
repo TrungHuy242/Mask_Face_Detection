@@ -44,16 +44,23 @@ export default function UploadForm() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://mask-face-detection.onrender.com";
+    const detectUrl = `${API_URL}/detect`;
+
+    // Debug: log URL (chỉ trong development)
+    if (process.env.NODE_ENV === 'development') {
+      console.log("API URL:", API_URL);
+      console.log("Detect URL:", detectUrl);
+    }
 
     try {
-      const res = await fetch(`${API_URL}/detect`, {
+      const res = await fetch(detectUrl, {
         method: "POST",
         body: formData,
       });
       
       if (!res.ok) {
-        throw new Error("Lỗi khi xử lý ảnh");
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
       }
       
       const data = await res.json();
@@ -61,7 +68,10 @@ export default function UploadForm() {
       setDetections(Array.isArray(dets) ? dets : []);
     } catch (err) {
       console.error("Upload error", err);
-      setError("Không thể kết nối đến server. Vui lòng thử lại sau.");
+      const errorMessage = err instanceof Error 
+        ? `Không thể kết nối đến server: ${err.message}` 
+        : "Không thể kết nối đến server. Vui lòng kiểm tra backend URL.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

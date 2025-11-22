@@ -45,7 +45,13 @@ export default function WebcamView() {
     }
 
     function startWebSocket() {
-      const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+      const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://mask-face-detection.onrender.com/ws";
+      
+      // Debug: log URL (chỉ trong development)
+      if (process.env.NODE_ENV === 'development') {
+        console.log("WebSocket URL:", WS_URL);
+      }
+      
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
@@ -85,9 +91,11 @@ export default function WebcamView() {
         if (mounted) setTimeout(startWebSocket, 1000);
       };
 
-      ws.onerror = () => {
+      ws.onerror = (error) => {
         setIsConnected(false);
-        setError("Lỗi kết nối WebSocket. Đang thử kết nối lại...");
+        console.error("WebSocket error:", error);
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+        setError(`Lỗi kết nối WebSocket đến ${wsUrl}. Vui lòng kiểm tra backend URL.`);
         try { ws.close(); } catch {}
       };
     }
