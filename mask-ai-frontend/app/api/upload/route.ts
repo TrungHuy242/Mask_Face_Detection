@@ -4,7 +4,8 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     // forward to FastAPI
-    const forwardRes = await fetch("http://localhost:8000/detect", {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const forwardRes = await fetch(`${API_URL}/detect`, {
         method: "POST",
         body: formData as any, // forward raw form data
     });

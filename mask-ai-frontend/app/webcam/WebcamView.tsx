@@ -45,7 +45,7 @@ export default function WebcamView() {
     }
 
     function startWebSocket() {
-      const WS_URL = "ws://localhost:8000/ws";
+      const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
